@@ -249,6 +249,105 @@ void FK_solver(float theta1, float theta5, float* coordinates) {
 
 }
 
+//trajectories array can mostly be removed
+
+//float angles[NUM_LEGS][NUM_POINTS*4][2];        // Array to store servo angles
+
+
+float ***angles;
+float ***trajectories;
+
+
+void IK_solver(float coord_X, float coord_Y, float* angles_rads);
+
+
+// Function to generate circular trajectory points and corresponding servo angles for a leg
+//Moves from 3,-10 to 7,-10.
+void generate_circular_trajectory(int leg_id, float radius) {
+
+const float centerX = 4.0;  // X-coordinate of circle center
+const float centerY = -12.0; // Y-coordinate of circle center
+float new_centerX = 0.0;
+printf("leg_id:%d",leg_id);
+printf("\n");
+for (int i = 0; i < NUM_POINTS; i++) {
+    float angle =  (M_PI * (float)i / (NUM_POINTS - 1)); // Angles from -π to 0
+    //need to change centre of circle according to translation along the x axis
+
+     if(count==0){
+       new_centerX= trajectories[leg_id][count][0] - radius;
+         }
+    else{
+    new_centerX= trajectories[leg_id][count-1][0] - radius;
+    }              
+    
+    float x = new_centerX - radius * cos(M_PI-angle);
+        float y = centerY + radius * sin(angle);
+         trajectories[leg_id][count+i][0] = x;
+         trajectories[leg_id][count+i][1] = y;
+        //printf("Leg id: %d x: %f y:%f \n", leg_id,x,y);
+        IK_solver(x, y, angles[leg_id][count+i]);
+        
+}
+printf("\n");
+
+}
+// Function to generate straight-line trajectory points and corresponding servo angles for a leg
+void generate_straight_line_trajectory(int leg_id, float start_x, float end_x, float y) {
+    float step = (end_x - start_x) / NUM_POINTS;
+    printf("leg_id:%d",leg_id);
+    printf("\n");
+    for (int i = 0; i < NUM_POINTS; i++) {
+        float x = start_x + i * step;
+        trajectories[leg_id][count+i][0] = x;
+        trajectories[leg_id][count+i][1] = y;
+        //printf("Leg id: %d x: %f y:%f \n", leg_id,x,y);
+        IK_solver(x, y, angles[leg_id][count+i]);
+    }
+    printf("\n");
+}
+
+// Main function to implement crawling gait
+void crawling_gait() {
+    //initialize_positions();
+
+    float radius = 2.0;        // Example radius
+    //float trajectories[NUM_LEGS][NUM_POINTS*4][2];  // Array to store trajectories
+    trajectories[0][0][0]=6;
+    trajectories[1][0][0]=6;
+    trajectories[2][0][0]=6;
+    trajectories[3][0][0]=6;
+
+
+
+    for(int j= 0; j < 1; j++) { // Loop until stop condition
+        for (int leg_id = 0; leg_id < NUM_LEGS; leg_id++) {  
+            
+            // printf("Leg id: %d\n", leg_id);
+           generate_circular_trajectory(leg_id, radius);
+           printf("4");
+           
+            for (int other_leg_id = 0; other_leg_id < NUM_LEGS; other_leg_id++) {
+                if (other_leg_id != leg_id) {
+                        if(count==0){
+                            generate_straight_line_trajectory(other_leg_id, trajectories[other_leg_id][count][0],trajectories[other_leg_id][count][0]+(6.0/3) , -12);
+                
+                        }
+                        else{
+                                
+                             generate_straight_line_trajectory(other_leg_id, trajectories[other_leg_id][count-1][0],trajectories[other_leg_id][count-1][0]+(6.0/3) , -12);
+                        }              
+                
+                }
+            }
+
+            count=count+NUM_POINTS;
+        }
+
+    }
+
+}
+
 void loop() {
   
 }
