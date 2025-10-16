@@ -1,6 +1,5 @@
 # Quadruped
-A four-legged robot with an attached robotic arm Optimized for Autonomous,
-rugged terrain navigation and complex environmental sensing for transport of small scale equipment to support military operations.
+A four-legged robot optimized for Autonomous, rugged terrain navigation and complex environmental sensing for transport of small scale equipment to support military operations.
 
 This Repo contains all the Kinematic solutions and the CAD model of the bot, along with the C++ code for programming the Microcontroller.
 
